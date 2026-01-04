@@ -1,22 +1,15 @@
-// List of posts - Add your markdown files here
+// Posts data
 const posts = [
-    // Research posts
     { 
         title: 'No data',
         category: 'research',
         file: 'posts/research/no_data.md',
         date: '2025-01-01',
         description: 'No data.'
-    },
-
-    
-    // Blog posts
-    
-    // CTF posts
+    }
 ];
 
 let currentCategory = 'all';
-let currentPosts = posts;
 
 // DOM Elements
 const postsList = document.getElementById('postsList');
@@ -28,75 +21,64 @@ const navLinks = document.querySelectorAll('.nav-links a');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Transfer dark-mode class from html to body if needed
+    if (document.documentElement.classList.contains('dark-mode')) {
+        document.body.classList.add('dark-mode');
+        document.documentElement.classList.remove('dark-mode');
+    }
+    
     displayPosts(posts);
     setupEventListeners();
-    setupHeaderScroll();
-    setupThemeToggle();
-    
-    // Home link functionality
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        try {
+            const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        } catch (e) {
+            console.warn('Could not save theme preference');
+        }
+    });
+
+    // Home link
     document.getElementById('homeLink').addEventListener('click', (e) => {
         e.preventDefault();
         postContent.style.display = 'none';
         postsList.style.display = 'flex';
-        
-        // Reset category filter
         navLinks.forEach(l => l.classList.remove('active'));
         currentCategory = 'all';
         searchInput.value = '';
         displayPosts(posts);
-        
-        // Scroll to top
         window.scrollTo(0, 0);
     });
-});
 
-// Theme toggle functionality
-function setupThemeToggle() {
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    
-    if (!themeToggle) {
-        console.error('Theme toggle button not found');
-        return;
-    }
-    
-    // Toggle theme on click
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        
-        // Save preference
-        try {
-            const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', theme);
-        } catch (e) {
-            console.warn('Could not save theme preference:', e);
-        }
-    });
-    
-    // Listen for system theme changes (optional)
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            try {
-                // Only auto-switch if user hasn't set a preference
-                if (!localStorage.getItem('theme')) {
-                    if (e.matches) {
-                        body.classList.add('dark-mode');
-                    } else {
-                        body.classList.remove('dark-mode');
-                    }
-                }
-            } catch (err) {
-                console.warn('Could not auto-switch theme:', err);
-            }
+    // Category navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            e.target.classList.add('active');
+            currentCategory = e.target.dataset.category;
+            filterPosts();
         });
-    }
-}
+    });
 
-// Header hide/show on scroll
-function setupHeaderScroll() {
+    // Search
+    searchInput.addEventListener('input', filterPosts);
+
+    // Back button
+    backBtn.addEventListener('click', () => {
+        postContent.style.display = 'none';
+        postsList.style.display = 'flex';
+    });
+
+    // Header hide/show on scroll
     let lastScroll = 0;
     const header = document.querySelector('header');
-    
     window.addEventListener('scroll', () => {
         const currentScroll = window.pageYOffset;
         
@@ -106,10 +88,8 @@ function setupHeaderScroll() {
         }
         
         if (currentScroll > lastScroll && currentScroll > 100) {
-            // Scrolling down
             header.classList.add('hidden');
         } else {
-            // Scrolling up
             header.classList.remove('hidden');
         }
         
@@ -117,48 +97,15 @@ function setupHeaderScroll() {
     });
 }
 
-// Setup event listeners
-function setupEventListeners() {
-    // Category navigation
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const category = e.target.dataset.category;
-            
-            // Update active state
-            navLinks.forEach(l => l.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            // Filter and display posts
-            currentCategory = category;
-            filterPosts();
-        });
-    });
-    
-    // Search functionality
-    searchInput.addEventListener('input', (e) => {
-        filterPosts();
-    });
-    
-    // Back button
-    backBtn.addEventListener('click', () => {
-        postContent.style.display = 'none';
-        postsList.style.display = 'flex';
-    });
-}
-
-// Filter posts based on category and search
+// Filter posts
 function filterPosts() {
     const searchTerm = searchInput.value.toLowerCase();
-    
     let filtered = posts;
     
-    // Filter by category
     if (currentCategory !== 'all') {
         filtered = filtered.filter(post => post.category === currentCategory);
     }
     
-    // Filter by search term
     if (searchTerm) {
         filtered = filtered.filter(post => 
             post.title.toLowerCase().includes(searchTerm) ||
@@ -166,11 +113,10 @@ function filterPosts() {
         );
     }
     
-    currentPosts = filtered;
     displayPosts(filtered);
 }
 
-// Display posts as list
+// Display posts
 function displayPosts(postsToDisplay) {
     if (postsToDisplay.length === 0) {
         postsList.innerHTML = '<div class="no-posts">No articles found</div>';
@@ -181,7 +127,7 @@ function displayPosts(postsToDisplay) {
         <div class="post-card" onclick="loadPost('${post.file}')">
             <div class="post-info">
                 <div class="post-header">
-                    <span class="category-badge ${post.category}">${getCategoryName(post.category)}</span>
+                    <span class="category-badge ${post.category}">${post.category.toUpperCase()}</span>
                     <span class="post-date">${formatDate(post.date)}</span>
                 </div>
                 <h3>${post.title}</h3>
@@ -191,14 +137,11 @@ function displayPosts(postsToDisplay) {
     `).join('');
 }
 
-// Load and display a single post
+// Load post
 async function loadPost(filePath) {
     try {
         const response = await fetch(filePath);
-        
-        if (!response.ok) {
-            throw new Error('Failed to load article');
-        }
+        if (!response.ok) throw new Error('Failed to load article');
         
         const markdown = await response.text();
         const html = marked.parse(markdown);
@@ -206,31 +149,20 @@ async function loadPost(filePath) {
         articleContent.innerHTML = html;
         postsList.style.display = 'none';
         postContent.style.display = 'block';
-        
-        // Scroll to top
         window.scrollTo(0, 0);
     } catch (error) {
-        articleContent.innerHTML = `
-            <h1>Error</h1>
-            <p>Failed to load article. Please check the file path.</p>
-        `;
+        articleContent.innerHTML = '<h1>Error</h1><p>Failed to load article. Please check the file path.</p>';
         postsList.style.display = 'none';
         postContent.style.display = 'block';
     }
 }
 
-// Helper functions
-function getCategoryName(category) {
-    const names = {
-        'research': 'RESEARCH',
-        'blogs': 'BLOGS',
-        'ctf': 'CTF'
-    };
-    return names[category] || category.toUpperCase();
-}
-
+// Format date
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
 }
