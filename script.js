@@ -55,19 +55,41 @@ function setupThemeToggle() {
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
     
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
+    if (!themeToggle) {
+        console.error('Theme toggle button not found');
+        return;
     }
     
+    // Toggle theme on click
     themeToggle.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
         
         // Save preference
-        const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
+        try {
+            const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        } catch (e) {
+            console.warn('Could not save theme preference:', e);
+        }
     });
+    
+    // Listen for system theme changes (optional)
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            try {
+                // Only auto-switch if user hasn't set a preference
+                if (!localStorage.getItem('theme')) {
+                    if (e.matches) {
+                        body.classList.add('dark-mode');
+                    } else {
+                        body.classList.remove('dark-mode');
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not auto-switch theme:', err);
+            }
+        });
+    }
 }
 
 // Header hide/show on scroll
