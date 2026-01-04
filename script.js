@@ -8,12 +8,11 @@ const posts = [
         date: '2025-01-01',
         description: 'No data.'
     },
+
     
     // Blog posts
-
     
     // CTF posts
-
 ];
 
 let currentCategory = 'all';
@@ -32,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayPosts(posts);
     setupEventListeners();
     setupHeaderScroll();
+    setupThemeToggle();
     
     // Home link functionality
     document.getElementById('homeLink').addEventListener('click', (e) => {
@@ -49,6 +49,26 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
     });
 });
+
+// Theme toggle functionality
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    // Check for saved theme preference or default to light mode
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        // Save preference
+        const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+    });
+}
 
 // Header hide/show on scroll
 function setupHeaderScroll() {
