@@ -19,7 +19,7 @@ const posts = [
         file: 'posts/ctf/Scarlet_CTF_2026/ruid_login.md',
         date: '2026-01-12',
         description: 'The challenge has buffer overflow and executable stack.'
-    }
+    },
 
     { 
         title: 'CTF Challenge: Stack pivot exploit',
