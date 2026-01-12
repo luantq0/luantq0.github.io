@@ -1,11 +1,32 @@
 // Posts data
 const posts = [
+    // Research
     { 
         title: 'No data',
         category: 'research',
         file: 'posts/research/no_data.md',
         date: '2025-01-01',
         description: 'No data.'
+    },
+
+
+    // Blogs
+
+    // CTF
+    { 
+        title: 'Scarlet CTF 2026 Writeup for ruid_login challenge',
+        category: 'ctf',
+        file: 'posts/ctf/Scarlet_CTF_2026/ruid_login.md',
+        date: '2026-01-12',
+        description: 'The challenge has buffer overflow and executable stack.'
+    }
+
+    { 
+        title: 'CTF Challenge: Stack pivot exploit',
+        category: 'ctf',
+        file: 'posts/ctf/pwned/stack_pivot.md',
+        date: '2026-01-12',
+        description: 'The challenge has buffer overflow, modify rbp register, exploit stack pivot.'
     }
 ];
 
