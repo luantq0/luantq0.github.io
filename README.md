@@ -1,8 +1,8 @@
 ### How to use
-1. Add title in `post/index.txt` file (modify **category = research/blog/ctf**)
+1. Add title in `post/index.txt` file (modify **category = research/blogs/ctf**)
 ```json
     { 
-        "title": "CTF  Writeup",
+        "title": "CTF Writeup",
         "category": "ctf",
         "file": "posts/ctf/demo.md",
         "date": "2026-01-01",
