@@ -1,250 +1,376 @@
 // ============================================
-// CONFIGURATION & STATE
+// CONSTANTS & CONFIGURATION
 // ============================================
-let posts = [];
-let currentCategory = 'all';
+const CONFIG = {
+    postsFile: 'posts/index.txt',
+    categories: ['ctf', 'blogs', 'research'],
+    defaultLanguage: 'c',
+    dateFormat: { year: 'numeric', month: 'short', day: 'numeric' }
+};
 
-// ============================================
-// DOM ELEMENTS
-// ============================================
-const DOM = {
-    postsList: document.getElementById('postsList'),
-    postContent: document.getElementById('postContent'),
-    articleContent: document.getElementById('articleContent'),
-    backBtn: document.getElementById('backBtn'),
-    searchInput: document.getElementById('searchInput'),
-    navLinks: document.querySelectorAll('.nav-links a'),
-    themeToggle: document.getElementById('themeToggle'),
-    homeLink: document.getElementById('homeLink'),
-    header: document.querySelector('header')
+const STATE = {
+    posts: [],
+    currentCategory: 'all'
 };
 
 // ============================================
-// INITIALIZATION
+// DOM CACHE
 // ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    initializeTheme();
-    loadPosts();
-    setupEventListeners();
-});
-
-function initializeTheme() {
-    // Transfer dark-mode class from html to body if needed
-    if (document.documentElement.classList.contains('dark-mode')) {
-        document.body.classList.add('dark-mode');
-        document.documentElement.classList.remove('dark-mode');
-    }
-}
-
-// ============================================
-// DATA LOADING
-// ============================================
-async function loadPosts() {
-    try {
-        const response = await fetch('posts/index.txt');
-        if (!response.ok) throw new Error('Failed to load posts index');
-        
-        posts = await response.json();
-        
-        // Sort by date (newest first)
-        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        displayPosts(posts);
-    } catch (error) {
-        console.error('Error loading posts:', error);
-        DOM.postsList.innerHTML = '<div class="no-posts">Failed to load posts</div>';
-    }
-}
-
-async function loadPost(filePath) {
-    try {
-        const response = await fetch(filePath);
-        if (!response.ok) throw new Error('Failed to load article');
-        
-        const markdown = await response.text();
-        const html = marked.parse(markdown);
-        
-        DOM.articleContent.innerHTML = html;
-        
-        // Apply syntax highlighting
-        highlightCodeBlocks();
-        
-        // Show article, hide list
-        showArticle();
-        
-    } catch (error) {
-        DOM.articleContent.innerHTML = '<h1>Error</h1><p>Failed to load article. Please check the file path.</p>';
-        showArticle();
-    }
-}
+const DOM = (() => {
+    const cache = {};
+    const ids = [
+        'postsList', 'postContent', 'articleContent', 
+        'backBtn', 'searchInput', 'themeToggle', 'homeLink'
+    ];
+    
+    ids.forEach(id => cache[id] = document.getElementById(id));
+    cache.navLinks = document.querySelectorAll('.nav-links a');
+    cache.header = document.querySelector('header');
+    
+    return cache;
+})();
 
 // ============================================
-// SYNTAX HIGHLIGHTING
+// ROUTER MODULE
 // ============================================
-function highlightCodeBlocks() {
-    DOM.articleContent.querySelectorAll('pre code').forEach((block) => {
-        // Detect language from class name or default to 'c'
-        const className = block.className;
-        const match = className.match(/language-(\w+)/);
-        
-        if (match) {
-            block.classList.add(`language-${match[1]}`);
-        } else {
-            block.classList.add('language-c');
+const Router = {
+    init() {
+        window.addEventListener('hashchange', () => this.handleRoute());
+        this.handleRoute();
+    },
+
+    handleRoute() {
+        const path = this.getCleanPath();
+        const route = this.detectRoute(path);
+        this.navigate(route);
+    },
+
+    getCleanPath() {
+        return window.location.hash.slice(1).replace(/^\/+|\/+$/g, '');
+    },
+
+    detectRoute(path) {
+        if (!path) return { type: 'home' };
+        if (path.endsWith('.md')) return { type: 'post', path: this.normalizePath(path) };
+        if (CONFIG.categories.includes(path)) return { type: 'category', category: path };
+        if (path.includes('/')) return { type: 'post', path: this.normalizePath(path) };
+        return { type: 'home' };
+    },
+
+    normalizePath(path) {
+        // Thêm 'posts/' vào đầu nếu chưa có
+        return path.startsWith('posts/') ? path : 'posts/' + path;
+    },
+
+    navigate(route) {
+        switch(route.type) {
+            case 'post':
+                PostView.load(route.path);
+                break;
+            case 'category':
+                CategoryView.filter(route.category);
+                break;
+            default:
+                HomeView.show();
         }
-        
-        // Apply Prism highlighting
-        Prism.highlightElement(block);
-    });
-}
+    },
+
+    updateURL(path) {
+        // Loại bỏ 'posts/' khỏi URL hiển thị
+        const displayPath = path.replace(/^posts\//, '');
+        window.location.hash = displayPath;
+    }
+};
 
 // ============================================
-// UI UPDATES
+// DATA MODULE
 // ============================================
-function displayPosts(postsToDisplay) {
-    if (postsToDisplay.length === 0) {
-        DOM.postsList.innerHTML = '<div class="no-posts">No articles found</div>';
-        return;
+const DataManager = {
+    async loadPosts() {
+        try {
+            const response = await fetch(CONFIG.postsFile);
+            if (!response.ok) throw new Error('Failed to load posts');
+            
+            STATE.posts = await response.json();
+            this.sortByDate();
+            Router.handleRoute();
+        } catch (error) {
+            console.error('Load posts error:', error);
+            UI.showError('Failed to load posts');
+        }
+    },
+
+    sortByDate() {
+        STATE.posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+
+    findPost(filePath) {
+        return STATE.posts.find(p => p.file === filePath);
+    },
+
+    filterPosts(category, searchTerm) {
+        let filtered = STATE.posts;
+
+        if (category !== 'all') {
+            filtered = filtered.filter(p => p.category === category);
+        }
+
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(p => 
+                p.title.toLowerCase().includes(term) ||
+                p.description.toLowerCase().includes(term)
+            );
+        }
+
+        return filtered;
     }
-    
-    DOM.postsList.innerHTML = postsToDisplay.map(post => `
-        <div class="post-card" onclick="loadPost('${post.file}')">
-            <div class="post-info">
-                <div class="post-header">
-                    <span class="category-badge ${post.category}">${post.category.toUpperCase()}</span>
-                    <span class="post-date">${formatDate(post.date)}</span>
+};
+
+// ============================================
+// VIEW MODULES
+// ============================================
+const HomeView = {
+    show() {
+        UI.showPostsList();
+        this.resetFilters();
+        this.displayPosts(STATE.posts);
+    },
+
+    resetFilters() {
+        DOM.navLinks.forEach(link => link.classList.remove('active'));
+        STATE.currentCategory = 'all';
+        DOM.searchInput.value = '';
+    },
+
+    displayPosts(posts) {
+        if (posts.length === 0) {
+            DOM.postsList.innerHTML = '<div class="no-posts">No articles found</div>';
+            return;
+        }
+
+        const html = posts.map(post => this.createPostCard(post)).join('');
+        DOM.postsList.innerHTML = html;
+        this.attachPostHandlers();
+    },
+
+    createPostCard(post) {
+        // Loại bỏ 'posts/' khỏi data-file để URL ngắn gọn hơn
+        const displayFile = post.file.replace(/^posts\//, '');
+        return `
+            <div class="post-card" data-file="${displayFile}">
+                <div class="post-info">
+                    <div class="post-header">
+                        <span class="category-badge ${post.category}">${post.category.toUpperCase()}</span>
+                        <span class="post-date">${Helpers.formatDate(post.date)}</span>
+                    </div>
+                    <h3>${post.title}</h3>
+                    <p class="post-description">${post.description}</p>
                 </div>
-                <h3>${post.title}</h3>
-                <p class="post-description">${post.description}</p>
             </div>
-        </div>
-    `).join('');
-}
+        `;
+    },
 
-function showArticle() {
-    DOM.postsList.style.display = 'none';
-    DOM.postContent.style.display = 'block';
-    window.scrollTo(0, 0);
-}
-
-function showPostsList() {
-    DOM.postContent.style.display = 'none';
-    DOM.postsList.style.display = 'flex';
-}
-
-function resetFilters() {
-    DOM.navLinks.forEach(link => link.classList.remove('active'));
-    currentCategory = 'all';
-    DOM.searchInput.value = '';
-}
-
-// ============================================
-// FILTERING & SEARCH
-// ============================================
-function filterPosts() {
-    const searchTerm = DOM.searchInput.value.toLowerCase();
-    let filtered = posts;
-    
-    // Filter by category
-    if (currentCategory !== 'all') {
-        filtered = filtered.filter(post => post.category === currentCategory);
+    attachPostHandlers() {
+        DOM.postsList.querySelectorAll('.post-card').forEach(card => {
+            card.addEventListener('click', () => {
+                Router.updateURL(card.dataset.file);
+            });
+        });
     }
-    
-    // Filter by search term
-    if (searchTerm) {
-        filtered = filtered.filter(post => 
-            post.title.toLowerCase().includes(searchTerm) ||
-            post.description.toLowerCase().includes(searchTerm)
-        );
+};
+
+const PostView = {
+    async load(filePath) {
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) throw new Error('Post not found');
+
+            const markdown = await response.text();
+            const html = marked.parse(markdown);
+
+            DOM.articleContent.innerHTML = html;
+            this.highlightCode();
+            UI.showArticle();
+            this.updateTitle(filePath);
+        } catch (error) {
+            console.error('Load post error:', error);
+            this.show404();
+        }
+    },
+
+    highlightCode() {
+        DOM.articleContent.querySelectorAll('pre code').forEach(block => {
+            const match = block.className.match(/language-(\w+)/);
+            if (!match) block.classList.add(`language-${CONFIG.defaultLanguage}`);
+            Prism.highlightElement(block);
+        });
+    },
+
+    updateTitle(filePath) {
+        const post = DataManager.findPost(filePath);
+        document.title = post 
+            ? `${post.title} - Luan Tran's Blog`
+            : "Luan Tran's Blog";
+    },
+
+    show404() {
+        DOM.articleContent.innerHTML = `
+            <h1>404 - Post Not Found</h1>
+            <p>The requested post could not be found.</p>
+        `;
+        UI.showArticle();
     }
-    
-    displayPosts(filtered);
-}
+};
+
+const CategoryView = {
+    filter(category) {
+        STATE.currentCategory = category;
+        this.updateActiveNav(category);
+        UI.showPostsList();
+        this.applyFilters();
+    },
+
+    updateActiveNav(category) {
+        DOM.navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.category === category);
+        });
+    },
+
+    applyFilters() {
+        const searchTerm = DOM.searchInput.value;
+        const filtered = DataManager.filterPosts(STATE.currentCategory, searchTerm);
+        HomeView.displayPosts(filtered);
+    }
+};
 
 // ============================================
-// EVENT LISTENERS
+// UI MODULE
 // ============================================
-function setupEventListeners() {
-    setupThemeToggle();
-    setupNavigation();
-    setupSearch();
-    setupScrollBehavior();
-}
+const UI = {
+    showPostsList() {
+        DOM.postContent.style.display = 'none';
+        DOM.postsList.style.display = 'flex';
+        document.title = "Luan Tran's Blog";
+    },
 
-function setupThemeToggle() {
-    DOM.themeToggle.addEventListener('click', () => {
+    showArticle() {
+        DOM.postsList.style.display = 'none';
+        DOM.postContent.style.display = 'block';
+        window.scrollTo(0, 0);
+    },
+
+    showError(message) {
+        DOM.postsList.innerHTML = `<div class="no-posts">${message}</div>`;
+    }
+};
+
+// ============================================
+// THEME MODULE
+// ============================================
+const ThemeManager = {
+    init() {
+        this.applyInitialTheme();
+        DOM.themeToggle.addEventListener('click', () => this.toggle());
+    },
+
+    applyInitialTheme() {
+        if (document.documentElement.classList.contains('dark-mode')) {
+            document.body.classList.add('dark-mode');
+            document.documentElement.classList.remove('dark-mode');
+        }
+    },
+
+    toggle() {
         document.body.classList.toggle('dark-mode');
-        
-        // Save theme preference
+        this.save();
+    },
+
+    save() {
         try {
             const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
             localStorage.setItem('theme', theme);
         } catch (e) {
-            console.warn('Could not save theme preference:', e);
+            console.warn('Could not save theme:', e);
         }
-    });
-}
+    }
+};
 
-function setupNavigation() {
-    // Home link
-    DOM.homeLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        showPostsList();
-        resetFilters();
-        displayPosts(posts);
-        window.scrollTo(0, 0);
-    });
+// ============================================
+// EVENT HANDLERS MODULE
+// ============================================
+const EventHandlers = {
+    init() {
+        this.setupNavigation();
+        this.setupSearch();
+        this.setupScroll();
+    },
 
-    // Category links
-    DOM.navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+    setupNavigation() {
+        DOM.homeLink.addEventListener('click', (e) => {
             e.preventDefault();
-            DOM.navLinks.forEach(l => l.classList.remove('active'));
-            e.target.classList.add('active');
-            currentCategory = e.target.dataset.category;
-            filterPosts();
+            Router.updateURL('');
         });
-    });
 
-    // Back button
-    DOM.backBtn.addEventListener('click', showPostsList);
-}
+        DOM.navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = e.target.dataset.category;
+                Router.updateURL(category === 'all' ? '' : category);
+            });
+        });
 
-function setupSearch() {
-    DOM.searchInput.addEventListener('input', filterPosts);
-}
+        DOM.backBtn.addEventListener('click', () => {
+            window.history.back();
+        });
+    },
 
-function setupScrollBehavior() {
-    let lastScroll = 0;
-    
-    window.addEventListener('scroll', () => {
-        const currentScroll = window.pageYOffset;
+    setupSearch() {
+        DOM.searchInput.addEventListener('input', () => {
+            CategoryView.applyFilters();
+        });
+    },
+
+    setupScroll() {
+        let lastScroll = 0;
         
-        // Always show header at top
-        if (currentScroll <= 0) {
-            DOM.header.classList.remove('hidden');
-            return;
-        }
-        
-        // Hide on scroll down, show on scroll up
-        if (currentScroll > lastScroll && currentScroll > 100) {
-            DOM.header.classList.add('hidden');
-        } else {
-            DOM.header.classList.remove('hidden');
-        }
-        
-        lastScroll = currentScroll;
-    });
-}
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll <= 0) {
+                DOM.header.classList.remove('hidden');
+                return;
+            }
+            
+            DOM.header.classList.toggle('hidden', 
+                currentScroll > lastScroll && currentScroll > 100
+            );
+            
+            lastScroll = currentScroll;
+        });
+    }
+};
 
 // ============================================
-// UTILITY FUNCTIONS
+// HELPERS MODULE
 // ============================================
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-    });
-}
+const Helpers = {
+    formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('en-US', CONFIG.dateFormat);
+    }
+};
+
+// ============================================
+// APP INITIALIZATION
+// ============================================
+const App = {
+    init() {
+        ThemeManager.init();
+        DataManager.loadPosts();
+        Router.init();
+        EventHandlers.init();
+    }
+};
+
+// Start the application
+document.addEventListener('DOMContentLoaded', () => App.init());

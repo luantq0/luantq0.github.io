@@ -8,6 +8,7 @@
 ![alt text](/images/pwned/bof8_file.png)
 
 - I use `checksec` see that the binary has **No canary** and **No PIE**
+
 ![alt text](/images/pwned/bof8_checksec.png)
 
 - `main` function 

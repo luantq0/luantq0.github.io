@@ -1,5 +1,4 @@
 [
-
     { 
         "title": "Scarlet CTF 2026 Writeup for ruid_login challenge",
         "category": "ctf",
@@ -7,7 +6,6 @@
         "date": "2026-01-12",
         "description": "The challenge has buffer overflow and executable stack."
     },
-    
     { 
         "title": "CTF Challenge: Stack pivot exploit",
         "category": "ctf",
@@ -15,6 +13,4 @@
         "date": "2026-01-12",
         "description": "The challenge has buffer overflow, modify rbp register, exploit stack pivot."
     }
-
-    
 ]
