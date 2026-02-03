@@ -187,17 +187,17 @@ executeVM()
 ```
 - Output:
 ```
-Nhap char:a
+char:a
 Input mem[0] = 97
 mem[1] = 0
 mem[1] = mem[1] % 2
 mem[0] = mem[0] + 0
-Nhap char:a
+char:a
 Input mem[1] = 97
 mem[2] = 1
 mem[2] = mem[2] % 2
 mem[1] = mem[1] - 1
-Nhap char:a
+char:a
 Input mem[2] = 97
 mem[3] = 2
 mem[3] = mem[3] % 2
