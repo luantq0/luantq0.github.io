@@ -1,5 +1,12 @@
 [
     { 
+        "title": "PascalCTF 2026 Writeup for StrangeVM",
+        "category": "ctf",
+        "file": "posts/ctf/pascalCTF2026/strangeVM.md",
+        "date": "2026-02-03",
+        "description": "The challenge reverse about vm"
+    },
+    { 
         "title": "Scarlet CTF 2026 Writeup for ruid_login challenge",
         "category": "ctf",
         "file": "posts/ctf/Scarlet_CTF_2026/ruid_login.md",
