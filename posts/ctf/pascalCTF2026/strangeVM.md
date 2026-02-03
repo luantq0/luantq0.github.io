@@ -187,24 +187,23 @@ executeVM()
 ```
 - Output:
 ```
-char:a
+char: a
 Input mem[0] = 97
 mem[1] = 0
 mem[1] = mem[1] % 2
 mem[0] = mem[0] + 0
-char:a
+char: a
 Input mem[1] = 97
 mem[2] = 1
 mem[2] = mem[2] % 2
 mem[1] = mem[1] - 1
-char:a
+char: a
 Input mem[2] = 97
 mem[3] = 2
 mem[3] = mem[3] % 2
 mem[2] = mem[2] + 2
 ```
-- Base on the output, 
-Based on the output, it can be seen that `flag[1] = input[1] - 1`, `flag[2] = input[2] + 2`, ...
+- Based on the output, it can be seen that `flag[1] = input[1] - 1`, `flag[2] = input[2] + 2`, ...
 - Solve find flag:
 ```python
 flag = [
