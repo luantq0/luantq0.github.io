@@ -58,7 +58,7 @@ const Router = {
     },
 
     normalizePath(path) {
-        // Thêm 'posts/' vào đầu nếu chưa có
+        // Add 'posts/' at the beginning if it's not already there
         return path.startsWith('posts/') ? path : 'posts/' + path;
     },
 
@@ -76,7 +76,7 @@ const Router = {
     },
 
     updateURL(path) {
-        // Loại bỏ 'posts/' khỏi URL hiển thị
+        // Remove 'posts/' from the displayed URL
         const displayPath = path.replace(/^posts\//, '');
         window.location.hash = displayPath;
     }
@@ -155,6 +155,7 @@ const HomeView = {
     },
 
     createPostCard(post) {
+        // Remove 'posts/' from data-file for a shorter URL
         const displayFile = post.file.replace(/^posts\//, '');
         const tagsHtml = post.tags ? post.tags.map(tag => 
             `<span class="tag-badge">${tag}</span>`
