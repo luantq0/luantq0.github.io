@@ -155,8 +155,11 @@ const HomeView = {
     },
 
     createPostCard(post) {
-        // Loại bỏ 'posts/' khỏi data-file để URL ngắn gọn hơn
         const displayFile = post.file.replace(/^posts\//, '');
+        const tagsHtml = post.tags ? post.tags.map(tag => 
+            `<span class="tag-badge">${tag}</span>`
+        ).join('') : '';
+        
         return `
             <div class="post-card" data-file="${displayFile}">
                 <div class="post-info">
@@ -166,6 +169,7 @@ const HomeView = {
                     </div>
                     <h3>${post.title}</h3>
                     <p class="post-description">${post.description}</p>
+                    ${tagsHtml ? `<div class="post-tags">${tagsHtml}</div>` : ''}
                 </div>
             </div>
         `;

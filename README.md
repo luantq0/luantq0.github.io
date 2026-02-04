@@ -6,7 +6,8 @@
         "category": "ctf",
         "file": "posts/ctf/demo.md",
         "date": "2026-01-01",
-        "description": "No data."
+        "description": "No data.",
+        "tags": ["reverse", "web", "crypto"]
     },
 ```
 2. Add Markdown file to `/posts` folder

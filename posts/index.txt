@@ -4,20 +4,23 @@
         "category": "ctf",
         "file": "posts/ctf/pascalCTF2026/strangeVM.md",
         "date": "2026-02-03",
-        "description": "The challenge reverse about vm"
+        "description": "The challenge reverse about vm",
+        "tags": ["reverse", "vm"]
     },
     { 
         "title": "Scarlet CTF 2026 Writeup for ruid_login challenge",
         "category": "ctf",
         "file": "posts/ctf/Scarlet_CTF_2026/ruid_login.md",
         "date": "2026-01-12",
-        "description": "The challenge has buffer overflow and executable stack."
+        "description": "The challenge has buffer overflow and executable stack.",
+        "tags": ["pwn", "buffer-overflow"]
     },
     { 
         "title": "CTF Challenge: Stack pivot exploit",
         "category": "ctf",
         "file": "posts/ctf/pwned/stack_pivot.md",
         "date": "2026-01-12",
-        "description": "The challenge has buffer overflow, modify rbp register, exploit stack pivot."
+        "description": "The challenge has buffer overflow, modify rbp register, exploit stack pivot.",
+        "tags": ["pwn", "stack-pivot"]
     }
 ]
