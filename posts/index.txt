@@ -1,5 +1,13 @@
 [
     { 
+        "title": "PascalCTF 2026 Writeup for AHC - Average Heap Challenge",
+        "category": "ctf",
+        "file": "posts/ctf/pascalCTF2026/AHC_AverageHeapChallenge",
+        "date": "2026-02-03",
+        "description": "The challenge pwn about heap overwrite, use after free",
+        "tags": ["pwn", "heap exploit", "heap overwrite", "UAF"]
+    },
+    { 
         "title": "PascalCTF 2026 Writeup for StrangeVM",
         "category": "ctf",
         "file": "posts/ctf/pascalCTF2026/strangeVM.md",
