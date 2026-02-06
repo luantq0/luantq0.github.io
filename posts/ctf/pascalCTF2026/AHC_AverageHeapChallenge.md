@@ -1,5 +1,5 @@
 ## Overview
-- This challenge exploits the UAF (use after free) vulnerability to overwrite chunk size, expanding the chunk size.
+- This challenge exploits the heap overflow and UAF (use after free) vulnerability to overwrite chunk size, expanding the chunk size.
 
 ---
 ## Analysis

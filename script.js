@@ -10,7 +10,9 @@ const CONFIG = {
 
 const STATE = {
     posts: [],
-    currentCategory: 'all'
+    currentCategory: 'all',
+    currentYear: 'all',
+    currentMonth: 'all'
 };
 
 // ============================================
@@ -20,7 +22,8 @@ const DOM = (() => {
     const cache = {};
     const ids = [
         'postsList', 'postContent', 'articleContent', 
-        'backBtn', 'searchInput', 'themeToggle', 'homeLink'
+        'backBtn', 'searchInput', 'themeToggle', 'homeLink',
+        'yearFilter', 'monthFilter', 'clearFilters'
     ];
     
     ids.forEach(id => cache[id] = document.getElementById(id));
@@ -93,6 +96,7 @@ const DataManager = {
             
             STATE.posts = await response.json();
             this.sortByDate();
+            TimeFilter.populateYears(); // Populate years after posts are loaded
             Router.handleRoute();
         } catch (error) {
             console.error('Load posts error:', error);
@@ -108,7 +112,7 @@ const DataManager = {
         return STATE.posts.find(p => p.file === filePath);
     },
 
-    filterPosts(category, searchTerm) {
+    filterPosts(category, searchTerm, year, month) {
         let filtered = STATE.posts;
 
         if (category !== 'all') {
@@ -123,7 +127,40 @@ const DataManager = {
             );
         }
 
+        if (year !== 'all') {
+            filtered = filtered.filter(p => {
+                const postYear = new Date(p.date).getFullYear().toString();
+                return postYear === year;
+            });
+        }
+
+        if (month !== 'all' && year !== 'all') {
+            filtered = filtered.filter(p => {
+                const postDate = new Date(p.date);
+                const postMonth = (postDate.getMonth() + 1).toString().padStart(2, '0');
+                return postMonth === month;
+            });
+        }
+
         return filtered;
+    },
+
+    getAvailableYears() {
+        const years = [...new Set(STATE.posts.map(p => 
+            new Date(p.date).getFullYear()
+        ))].sort((a, b) => b - a);
+        return years;
+    },
+
+    getAvailableMonths(year) {
+        if (year === 'all') return [];
+        
+        const months = [...new Set(STATE.posts
+            .filter(p => new Date(p.date).getFullYear().toString() === year)
+            .map(p => new Date(p.date).getMonth() + 1)
+        )].sort((a, b) => b - a);
+        
+        return months;
     }
 };
 
@@ -140,7 +177,13 @@ const HomeView = {
     resetFilters() {
         DOM.navLinks.forEach(link => link.classList.remove('active'));
         STATE.currentCategory = 'all';
+        STATE.currentYear = 'all';
+        STATE.currentMonth = 'all';
         DOM.searchInput.value = '';
+        DOM.yearFilter.value = 'all';
+        DOM.monthFilter.value = 'all';
+        DOM.monthFilter.disabled = true;
+        DOM.clearFilters.style.display = 'none';
     },
 
     displayPosts(posts) {
@@ -244,8 +287,21 @@ const CategoryView = {
 
     applyFilters() {
         const searchTerm = DOM.searchInput.value;
-        const filtered = DataManager.filterPosts(STATE.currentCategory, searchTerm);
+        const filtered = DataManager.filterPosts(
+            STATE.currentCategory, 
+            searchTerm,
+            STATE.currentYear,
+            STATE.currentMonth
+        );
         HomeView.displayPosts(filtered);
+        this.updateClearButton();
+    },
+
+    updateClearButton() {
+        const hasFilters = STATE.currentYear !== 'all' || 
+                          STATE.currentMonth !== 'all' || 
+                          DOM.searchInput.value !== '';
+        DOM.clearFilters.style.display = hasFilters ? 'inline-block' : 'none';
     }
 };
 
@@ -267,6 +323,56 @@ const UI = {
 
     showError(message) {
         DOM.postsList.innerHTML = `<div class="no-posts">${message}</div>`;
+    }
+};
+
+// ============================================
+// TIME FILTER MODULE
+// ============================================
+const TimeFilter = {
+    monthNames: [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+
+    populateYears() {
+        if (!STATE.posts || STATE.posts.length === 0) {
+            console.warn('No posts available for year filter');
+            return;
+        }
+
+        const years = DataManager.getAvailableYears();
+        console.log('Available years:', years);
+        
+        const options = years.map(year => 
+            `<option value="${year}">${year}</option>`
+        ).join('');
+        
+        // Keep "All years" and add year options
+        DOM.yearFilter.innerHTML = '<option value="all">All years</option>' + options;
+    },
+
+    updateMonthFilter(year) {
+        // Always reset month state when year changes
+        STATE.currentMonth = 'all';
+        
+        if (year === 'all') {
+            DOM.monthFilter.innerHTML = '<option value="all">All months</option>';
+            DOM.monthFilter.disabled = true;
+            return;
+        }
+
+        const months = DataManager.getAvailableMonths(year);
+        console.log('Available months for', year, ':', months);
+        
+        const options = months.map(month => {
+            const monthStr = month.toString().padStart(2, '0');
+            return `<option value="${monthStr}">${this.monthNames[month - 1]}</option>`;
+        }).join('');
+
+        DOM.monthFilter.innerHTML = '<option value="all">All months</option>' + options;
+        DOM.monthFilter.disabled = false;
+        DOM.monthFilter.value = 'all';
     }
 };
 
@@ -308,6 +414,7 @@ const EventHandlers = {
     init() {
         this.setupNavigation();
         this.setupSearch();
+        this.setupTimeFilters();
         this.setupScroll();
     },
 
@@ -332,6 +439,32 @@ const EventHandlers = {
 
     setupSearch() {
         DOM.searchInput.addEventListener('input', () => {
+            CategoryView.applyFilters();
+        });
+    },
+
+    setupTimeFilters() {
+        // Year filter change
+        DOM.yearFilter.addEventListener('change', (e) => {
+            STATE.currentYear = e.target.value;
+            TimeFilter.updateMonthFilter(e.target.value);
+            CategoryView.applyFilters();
+        });
+
+        // Month filter change
+        DOM.monthFilter.addEventListener('change', (e) => {
+            STATE.currentMonth = e.target.value;
+            CategoryView.applyFilters();
+        });
+
+        // Clear filters button
+        DOM.clearFilters.addEventListener('click', () => {
+            STATE.currentYear = 'all';
+            STATE.currentMonth = 'all';
+            DOM.searchInput.value = '';
+            DOM.yearFilter.value = 'all';
+            DOM.monthFilter.value = 'all';
+            DOM.monthFilter.disabled = true;
             CategoryView.applyFilters();
         });
     },

@@ -76,6 +76,15 @@
         </nav>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Search articles...">
+            <div class="filter-container">
+                <select id="yearFilter" class="year-filter">
+                    <option value="all">All years</option>
+                </select>
+                <select id="monthFilter" class="month-filter" disabled>
+                    <option value="all">All months</option>
+                </select>
+                <button id="clearFilters" class="clear-filters-btn" style="display: none;">Clear filters</button>
+            </div>
         </div>
     </header>
 

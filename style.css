@@ -242,6 +242,71 @@ body.dark-mode .theme-toggle .moon-icon {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Filter Container */
+.filter-container {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.year-filter,
+.month-filter {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    outline: none;
+    transition: all var(--transition-fast);
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    min-width: 120px;
+}
+
+body.dark-mode .year-filter,
+body.dark-mode .month-filter {
+    background: var(--bg-secondary);
+}
+
+.year-filter:hover:not(:disabled),
+.month-filter:hover:not(:disabled) {
+    border-color: var(--accent-blue);
+}
+
+.year-filter:focus,
+.month-filter:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.month-filter:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg-hover);
+}
+
+.clear-filters-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+}
+
+.clear-filters-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
 /* ============================================
    CONTAINER & LAYOUT
    ============================================ */
@@ -696,5 +761,20 @@ body.dark-mode .tag-badge:hover {
     #articleContent pre {
         padding: var(--spacing-md);
         font-size: 0.8125rem;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .year-filter,
+    .month-filter {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .clear-filters-btn {
+        width: 100%;
     }
 }
