@@ -2,10 +2,10 @@
     { 
         "title": "PascalCTF 2026 Writeup for AHC - Average Heap Challenge",
         "category": "ctf",
-        "file": "posts/ctf/pascalCTF2026/AHC_AverageHeapChallenge",
-        "date": "2026-02-03",
-        "description": "The challenge pwn about heap overwrite, use after free",
-        "tags": ["pwn", "heap exploit", "heap overwrite", "UAF"]
+        "file": "posts/ctf/pascalCTF2026/AHC_AverageHeapChallenge.md",
+        "date": "2026-02-05",
+        "description": "This challenge exploits the heap overflow and UAF (use after free) vulnerability to overwrite chunk size, expanding the chunk size.",
+        "tags": ["pwn", "heap overflow", "UAF"]
     },
     { 
         "title": "PascalCTF 2026 Writeup for StrangeVM",

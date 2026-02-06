@@ -1,5 +1,5 @@
 ## Overview
-- This challenge exploits the UAF (use after free) vulnerability to overwrite chunk size, expanding the chunk size on bins after use and freeing them again.
+- This challenge exploits the UAF (use after free) vulnerability to overwrite chunk size, expanding the chunk size.
 
 ---
 ## Analysis
@@ -55,7 +55,7 @@ LABEL_14:
 ```
 
 - `setup_chall` func, 
-reset and initialize the value; at this point, the **bins** contains 72-sized chunks that have been mallocated. The *target* is declared at the very end of the heap.
+reset and initialize the value; at this point, the **bins** contains 72-sized chunks that have been mallocated and free. The *target* is declared at the very end of the heap.
 ```c
   for ( i = 0; i <= 4; ++i )
     (&players)[i] = malloc(72u);
@@ -96,7 +96,7 @@ reset and initialize the value; at this point, the **bins** contains 72-sized ch
 
 ```
 
-- `read_name` allows a maximum of `len + 39` characters, `read_message` allows a maximum of 39 characters, plus a '\0' added after scanf, the maximum would be `len + 80` characters. Since the chunk size is 72, only 8 characters can be overwritten, and the *target* value cannot be reached if the overwrite is done at the last index.
+- `read_name` allows a maximum of `len + 39` characters, `read_message` allows a maximum of 39 characters, plus a '\0' added after scanf, the maximum would be `len + 80` characters. Since the chunk size is 72, only 8 characters can be overwritten if len = 0, and the *target* value cannot be reached if the overwrite is done at the last index.
 - The approach would be to use index 3 to overwrite the chunk size of index 4 (which is currently in tcachebins), reuse index 4, and free it again. This time, the chunk size of index 4 in the bins has been changed, and it's entirely possible to reuse index 4 with a larger size and write to *target* var.
 
 ![alt text](/images/pascalCTF2026/ahc_heap.png)
