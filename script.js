@@ -258,8 +258,8 @@ const PostView = {
     updateTitle(filePath) {
         const post = DataManager.findPost(filePath);
         document.title = post 
-            ? `${post.title} - Luan Tran's Blog`
-            : "Luan Tran's Blog";
+            ? `${post.title} - LuanTran's Blog`
+            : "LuanTran's Blog";
     },
 
     show404() {
@@ -312,7 +312,7 @@ const UI = {
     showPostsList() {
         DOM.postContent.style.display = 'none';
         DOM.postsList.style.display = 'flex';
-        document.title = "Luan Tran's Blog";
+        document.title = "LuanTran's Blog";
     },
 
     showArticle() {
