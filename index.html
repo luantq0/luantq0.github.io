@@ -35,6 +35,7 @@
     </script>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
     <header>
         <nav>
             <a href="#" class="logo" id="homeLink">LuanTran's Blog</a>
@@ -99,5 +100,106 @@
     </main>
 
     <script src="script.js"></script>
+    <script>
+    // Floating particle background
+    (function() {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: -9999, y: -9999 };
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function isDark() {
+            return document.body.classList.contains('dark-mode');
+        }
+
+        function makeParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2.5 + 0.8,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                alpha: Math.random() * 0.55 + 0.3,
+                hue: Math.random() > 0.5 ? 217 : 270
+            };
+        }
+
+        function init() {
+            resize();
+            particles = Array.from({ length: 120 }, makeParticle);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const dark = isDark();
+
+            // Draw connections first (behind dots)
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const maxDist = 130;
+                    if (dist < maxDist) {
+                        const lineAlpha = (1 - dist / maxDist) * (dark ? 0.28 : 0.22);
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = dark
+                            ? `rgba(88, 166, 255, ${lineAlpha})`
+                            : `rgba(59, 130, 246, ${lineAlpha})`;
+                        ctx.lineWidth = 0.9;
+                        ctx.stroke();
+                    }
+                }
+
+                // Mouse interaction - highlight nearby particles
+                const mdx = particles[i].x - mouse.x;
+                const mdy = particles[i].y - mouse.y;
+                const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+                if (mdist < 160) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    const ma = (1 - mdist / 160) * 0.35;
+                    ctx.strokeStyle = dark ? `rgba(163, 113, 247, ${ma})` : `rgba(139, 92, 246, ${ma})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
+            }
+
+            // Draw particles
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = dark
+                    ? `hsla(${p.hue}, 90%, 72%, ${p.alpha})`
+                    : `hsla(${p.hue}, 75%, 48%, ${p.alpha})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+        init();
+        draw();
+    })();
+    </script>
 </body>
 </html>

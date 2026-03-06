@@ -90,6 +90,53 @@ body {
     background-color: var(--bg-primary);
     min-height: 100vh;
     transition: background-color var(--transition-normal), color var(--transition-normal);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   ANIMATED BACKGROUND
+   ============================================ */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 70% 55% at 5% 10%,  rgba(59, 130, 246, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 50% at 95% 85%, rgba(139, 92, 246, 0.20) 0%, transparent 50%),
+        radial-gradient(ellipse 45% 40% at 80% 10%,  rgba(99, 179, 237, 0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 15% 90%, rgba(167, 105, 245, 0.13) 0%, transparent 50%);
+    animation: bgPulse 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgPulse {
+    0%   { opacity: 0.7; transform: scale(1)    translate(0,     0); }
+    33%  { opacity: 1;   transform: scale(1.06) translate(1.5%, -1.2%); }
+    66%  { opacity: 0.8; transform: scale(0.97) translate(-1.2%, 1.5%); }
+    100% { opacity: 1;   transform: scale(1.04) translate(0.8%,  0.8%); }
+}
+
+body.dark-mode::after {
+    background:
+        radial-gradient(ellipse 70% 55% at 5% 10%,  rgba(88, 166, 255, 0.26) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 50% at 95% 85%, rgba(163, 113, 247, 0.24) 0%, transparent 50%),
+        radial-gradient(ellipse 45% 40% at 80% 10%,  rgba(56, 189, 248, 0.16) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 15% 90%, rgba(192, 132, 252, 0.16) 0%, transparent 50%);
+}
+
+/* Floating dots canvas */
+#bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+body.dark-mode #bg-canvas {
+    opacity: 0.7;
 }
 
 /* ============================================
