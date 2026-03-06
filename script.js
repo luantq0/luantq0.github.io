@@ -462,7 +462,7 @@ const EventHandlers = {
         this.setupNavigation();
         this.setupSearch();
         this.setupTimeFilters();
-        this.setupScroll();
+
     },
 
     setupNavigation() {
@@ -516,24 +516,6 @@ const EventHandlers = {
         });
     },
 
-    setupScroll() {
-        let lastScroll = 0;
-        
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            
-            if (currentScroll <= 0) {
-                DOM.header.classList.remove('hidden');
-                return;
-            }
-            
-            DOM.header.classList.toggle('hidden', 
-                currentScroll > lastScroll && currentScroll > 100
-            );
-            
-            lastScroll = currentScroll;
-        });
-    }
 };
 
 // ============================================
