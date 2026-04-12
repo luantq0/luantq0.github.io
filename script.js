@@ -54,6 +54,7 @@ const Router = {
 
     detectRoute(path) {
         if (!path) return { type: 'home' };
+        if (path === 'about') return { type: 'about' };
         if (path.endsWith('.md')) return { type: 'post', path: this.normalizePath(path) };
         if (CONFIG.categories.includes(path)) return { type: 'category', category: path };
         if (path.includes('/')) return { type: 'post', path: this.normalizePath(path) };
@@ -72,6 +73,9 @@ const Router = {
                 break;
             case 'category':
                 CategoryView.filter(route.category);
+                break;
+            case 'about':
+                AboutView.show();
                 break;
             default:
                 HomeView.show();
@@ -352,6 +356,29 @@ const CategoryView = {
     }
 };
 
+const AboutView = {
+    async show() {
+        this.updateActiveNav();
+        try {
+            const response = await fetch('about.md');
+            if (!response.ok) throw new Error('About page not found');
+            const markdown = await response.text();
+            DOM.articleContent.innerHTML = marked.parse(markdown);
+            PostView.highlightCode();
+        } catch (error) {
+            DOM.articleContent.innerHTML = '<h1>About</h1><p>Content coming soon.</p>';
+        }
+        UI.showArticle();
+        document.title = "About - LuanTran's Blog";
+    },
+
+    updateActiveNav() {
+        DOM.navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.page === 'about');
+        });
+    }
+};
+
 // ============================================
 // UI MODULE
 // ============================================
@@ -475,7 +502,12 @@ const EventHandlers = {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const category = e.target.dataset.category;
-                Router.updateURL(category === 'all' ? '' : category);
+                const page = e.target.dataset.page;
+                if (page) {
+                    Router.updateURL(page);
+                } else if (category) {
+                    Router.updateURL(category === 'all' ? '' : category);
+                }
             });
         });
 
