@@ -21,13 +21,14 @@ const STATE = {
 const DOM = (() => {
     const cache = {};
     const ids = [
-        'postsList', 'postContent', 'articleContent', 
+        'postsList', 'postContent', 'articleContent',
         'backBtn', 'searchInput', 'themeToggle', 'homeLink',
-        'yearFilter', 'monthFilter', 'clearFilters'
+        'yearFilter', 'monthFilter', 'clearFilters', 'menuBtn'
     ];
-    
+
     ids.forEach(id => cache[id] = document.getElementById(id));
     cache.navLinks = document.querySelectorAll('.nav-links a');
+    cache.navLinksMenu = document.querySelector('.nav-links');
     cache.header = document.querySelector('header');
     
     return cache;
@@ -489,12 +490,37 @@ const EventHandlers = {
         this.setupNavigation();
         this.setupSearch();
         this.setupTimeFilters();
+        this.setupMobileMenu();
+    },
 
+    closeMobileMenu() {
+        DOM.navLinksMenu.classList.remove('open');
+        DOM.menuBtn.classList.remove('open');
+        DOM.menuBtn.setAttribute('aria-expanded', 'false');
+    },
+
+    setupMobileMenu() {
+        DOM.menuBtn.addEventListener('click', () => {
+            const isOpen = DOM.navLinksMenu.classList.toggle('open');
+            DOM.menuBtn.classList.toggle('open', isOpen);
+            DOM.menuBtn.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        // Close menu when any nav link is clicked
+        DOM.navLinks.forEach(link => {
+            link.addEventListener('click', () => this.closeMobileMenu());
+        });
+
+        // Close menu when clicking outside the header
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('header')) this.closeMobileMenu();
+        });
     },
 
     setupNavigation() {
         DOM.homeLink.addEventListener('click', (e) => {
             e.preventDefault();
+            this.closeMobileMenu();
             Router.updateURL('');
         });
 

@@ -792,64 +792,192 @@ body.dark-mode .tag-badge:hover {
 }
 
 /* ============================================
+   HAMBURGER MENU BUTTON (hidden on desktop)
+   ============================================ */
+.menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    color: var(--text-tertiary);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.menu-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.menu-btn .icon-close {
+    display: none;
+}
+
+.menu-btn.open .icon-menu {
+    display: none;
+}
+
+.menu-btn.open .icon-close {
+    display: block;
+}
+
+/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 768px) {
+    /* Show hamburger */
+    .menu-btn {
+        display: flex;
+    }
+
+    /* Nav row */
+    nav {
+        padding: 0 var(--spacing-md);
+    }
+
     .header-right {
-        gap: var(--spacing-md);
+        gap: var(--spacing-sm);
     }
-    
+
+    .social-links {
+        gap: var(--spacing-sm);
+    }
+
+    /* Nav links: hidden by default, dropdown when open */
     .nav-links {
-        gap: var(--spacing-xs);
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 6px 16px var(--shadow);
+        z-index: 999;
+        gap: 0;
+        padding: 0.25rem 0;
     }
-    
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
     .nav-links a {
-        padding: var(--spacing-sm) 0.75rem;
-        font-size: 0.875rem;
+        display: block;
+        padding: 0.875rem var(--spacing-lg);
+        border-radius: 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
     }
-    
+
+    .nav-links li:last-child a {
+        border-bottom: none;
+    }
+
+    /* Logo */
+    .logo {
+        font-size: 1.2rem;
+    }
+
+    /* Search */
+    .search-container {
+        padding: 0 var(--spacing-md);
+    }
+
+    /* Container */
     .container {
         padding: var(--spacing-md);
-        margin: var(--spacing-md);
+        margin: 0.75rem;
+        border-radius: var(--radius-md);
     }
-    
-    .post-card {
-        padding: 1rem 0;
+
+    /* Disable translateX slide on post cards (touch-unfriendly) */
+    .post-card:hover {
+        transform: none;
+        padding-left: 0;
     }
-    
-    .logo {
-        font-size: 1.25rem;
-    }
-    
+
+    /* Article */
     #articleContent {
         max-width: 100%;
     }
-    
+
     #articleContent h1 {
-        font-size: 1.875rem;
+        font-size: 1.75rem;
     }
-    
+
     #articleContent h2 {
-        font-size: 1.5rem;
+        font-size: 1.375rem;
     }
-    
+
+    #articleContent h3 {
+        font-size: 1.125rem;
+    }
+
     #articleContent pre {
         padding: var(--spacing-md);
         font-size: 0.8125rem;
     }
-    
+
+    /* Back button */
+    .back-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Filters */
     .filter-container {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .year-filter,
-    .month-filter {
+    .month-filter,
+    .clear-filters-btn {
         width: 100%;
         min-width: auto;
     }
-    
-    .clear-filters-btn {
-        width: 100%;
+}
+
+@media (max-width: 480px) {
+    nav {
+        padding: 0 0.75rem;
+    }
+
+    .logo {
+        font-size: 1.05rem;
+    }
+
+    .search-container {
+        padding: 0 0.75rem;
+    }
+
+    .container {
+        margin: 0.5rem;
+        padding: 0.875rem;
+    }
+
+    #articleContent h1 {
+        font-size: 1.5rem;
+    }
+
+    #articleContent h2 {
+        font-size: 1.25rem;
+    }
+
+    #articleContent p,
+    #articleContent ul,
+    #articleContent ol {
+        font-size: 0.9rem;
     }
 }
