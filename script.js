@@ -23,7 +23,7 @@ const DOM = (() => {
     const ids = [
         'postsList', 'postContent', 'articleContent',
         'backBtn', 'searchInput', 'themeToggle', 'homeLink',
-        'yearFilter', 'monthFilter', 'clearFilters', 'menuBtn'
+        'yearFilter', 'monthFilter', 'clearFilters', 'menuBtn', 'tocSidebar'
     ];
 
     ids.forEach(id => cache[id] = document.getElementById(id));
@@ -244,6 +244,7 @@ const PostView = {
 
             DOM.articleContent.innerHTML = html;
             this.highlightCode();
+            TOC.build();
             UI.showArticle();
             this.updateTitle(filePath);
         } catch (error) {
@@ -319,6 +320,7 @@ const PostView = {
             <h1>404 - Post Not Found</h1>
             <p>The requested post could not be found.</p>
         `;
+        TOC.clear();
         UI.showArticle();
     }
 };
@@ -366,8 +368,10 @@ const AboutView = {
             const markdown = await response.text();
             DOM.articleContent.innerHTML = marked.parse(markdown);
             PostView.highlightCode();
+            TOC.build();
         } catch (error) {
             DOM.articleContent.innerHTML = '<h1>About</h1><p>Content coming soon.</p>';
+            TOC.clear();
         }
         UI.showArticle();
         document.title = "About - LuanTran's Blog";
@@ -388,6 +392,7 @@ const UI = {
         DOM.postContent.style.display = 'none';
         DOM.postsList.style.display = 'flex';
         document.title = "LuanTran's Blog";
+        TOC.clear();
     },
 
     showArticle() {
@@ -582,6 +587,92 @@ const EventHandlers = {
 const Helpers = {
     formatDate(dateString) {
         return new Date(dateString).toLocaleDateString('en-US', CONFIG.dateFormat);
+    },
+
+    slugify(text) {
+        return text.toLowerCase().trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-') || 'section';
+    }
+};
+
+// ============================================
+// TABLE OF CONTENTS MODULE
+// ============================================
+const TOC = {
+    observer: null,
+
+    build() {
+        if (!DOM.tocSidebar) return;
+        this.clear();
+
+        const headings = [...DOM.articleContent.querySelectorAll('h1, h2, h3, h4')];
+        if (headings.length < 2) return;
+
+        // Indent relative to the shallowest heading present, so same-level
+        // headings always share the same left margin (e.g. all '##' sit flush-left).
+        const minLevel = Math.min(...headings.map(h => Number(h.tagName.charAt(1))));
+
+        const used = new Set();
+        const links = headings.map(h => {
+            const base = Helpers.slugify(h.textContent);
+            let id = base, n = 1;
+            while (used.has(id)) id = `${base}-${n++}`;
+            used.add(id);
+            h.id = id;
+
+            const depth = Number(h.tagName.charAt(1)) - minLevel;
+            return `<a class="toc-link toc-d${depth}" href="#${id}" data-target="${id}">${h.textContent}</a>`;
+        }).join('');
+
+        DOM.tocSidebar.innerHTML =
+            `<div class="toc-title">On this page</div><nav class="toc-nav">${links}</nav>`;
+        DOM.tocSidebar.classList.add('has-toc');
+
+        this.attachHandlers();
+        this.observe(headings);
+    },
+
+    attachHandlers() {
+        DOM.tocSidebar.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', e => {
+                // Prevent the hash router from treating the anchor as a route
+                e.preventDefault();
+                const target = document.getElementById(link.dataset.target);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    },
+
+    observe(headings) {
+        const links = {};
+        DOM.tocSidebar.querySelectorAll('.toc-link').forEach(l => {
+            links[l.dataset.target] = l;
+        });
+
+        this.observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const active = links[entry.target.id];
+                if (!active) return;
+                Object.values(links).forEach(l => l.classList.remove('active'));
+                active.classList.add('active');
+            });
+        }, { rootMargin: '0px 0px -75% 0px', threshold: 0 });
+
+        headings.forEach(h => this.observer.observe(h));
+    },
+
+    clear() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        if (DOM.tocSidebar) {
+            DOM.tocSidebar.innerHTML = '';
+            DOM.tocSidebar.classList.remove('has-toc');
+        }
     }
 };
 
