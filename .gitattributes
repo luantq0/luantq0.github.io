@@ -1,0 +1,4 @@
+# Normalize line endings to LF in the repository.
+# Working-tree EOL is handled per-checkout (core.autocrlf), but the
+# stored blobs stay LF so diffs never show whole-file rewrites.
+* text=auto eol=lf

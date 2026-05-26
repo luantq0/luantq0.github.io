@@ -358,7 +358,8 @@ body.dark-mode .month-filter {
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     box-shadow: 0 1px 3px var(--shadow);
-    overflow: hidden;
+    /* 'visible' (not 'hidden') so the article's sticky TOC sidebar can pin while scrolling */
+    overflow: visible;
 }
 
 /* ============================================
@@ -548,6 +549,83 @@ body.dark-mode .tag-badge:hover {
 }
 
 /* ============================================
+   POST LAYOUT (TOC SIDEBAR + ARTICLE)
+   ============================================ */
+.post-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xl);
+}
+
+.post-layout #articleContent {
+    flex: 1 1 auto;
+    min-width: 0; /* allow code blocks to scroll instead of stretching the flex item */
+}
+
+.toc-sidebar {
+    display: none;
+}
+
+.toc-sidebar.has-toc {
+    display: block;
+    flex: 0 0 220px;
+    width: 220px;
+    position: sticky;
+    top: var(--spacing-lg);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    padding-right: var(--spacing-md);
+    border-right: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.toc-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.toc-nav {
+    display: block;
+}
+
+.toc-link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 0.3rem 0 0.3rem 0.6rem;
+    border-left: 2px solid transparent;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+    /* Wrap long headings onto multiple lines instead of truncating with an ellipsis */
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Indent by relative depth (0 = shallowest heading in the document) */
+.toc-d0 { padding-left: 0.6rem; }
+.toc-d1 { padding-left: 1.4rem; }
+.toc-d2 { padding-left: 2.2rem; font-size: 0.8rem; }
+.toc-d3 { padding-left: 3.0rem; font-size: 0.8rem; }
+
+.toc-link:hover {
+    color: var(--text-primary);
+    border-left-color: var(--border-color);
+}
+
+.toc-link.active {
+    color: var(--accent-blue);
+    border-left-color: var(--accent-blue);
+    font-weight: 600;
+}
+
+/* ============================================
    ARTICLE CONTENT
    ============================================ */
 #articleContent {
@@ -574,6 +652,14 @@ body.dark-mode .tag-badge:hover {
     font-size: 1.375rem;
     margin-top: var(--spacing-lg);
     margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+#articleContent h4 {
+    font-size: 1.125rem;
+    margin-top: var(--spacing-md);
+    margin-bottom: 0.5rem;
     color: var(--text-primary);
     font-weight: 600;
 }
@@ -905,6 +991,15 @@ body.dark-mode .tag-badge:hover {
     .post-card:hover {
         transform: none;
         padding-left: 0;
+    }
+
+    /* Stack layout and hide TOC sidebar on small screens */
+    .post-layout {
+        display: block;
+    }
+
+    .toc-sidebar.has-toc {
+        display: none;
     }
 
     /* Article */
