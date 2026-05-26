@@ -461,25 +461,19 @@ const TimeFilter = {
 // ============================================
 const ThemeManager = {
     init() {
-        this.applyInitialTheme();
+        // The inline <head> script already set the theme class on <html>
+        // before first paint, so there is nothing to apply here.
         DOM.themeToggle.addEventListener('click', () => this.toggle());
     },
 
-    applyInitialTheme() {
-        if (document.documentElement.classList.contains('dark-mode')) {
-            document.body.classList.add('dark-mode');
-            document.documentElement.classList.remove('dark-mode');
-        }
-    },
-
     toggle() {
-        document.body.classList.toggle('dark-mode');
+        document.documentElement.classList.toggle('dark-mode');
         this.save();
     },
 
     save() {
         try {
-            const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const theme = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
             localStorage.setItem('theme', theme);
         } catch (e) {
             console.warn('Could not save theme:', e);

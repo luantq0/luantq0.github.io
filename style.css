@@ -49,7 +49,7 @@
 }
 
 /* Dark Mode Variables */
-body.dark-mode {
+html.dark-mode {
     --bg-primary: #0d1117;
     --bg-secondary: #161b22;
     --bg-hover: #1c2128;
@@ -118,7 +118,7 @@ body::after {
     100% { opacity: 1;   transform: scale(1.04) translate(0.8%,  0.8%); }
 }
 
-body.dark-mode::after {
+html.dark-mode body::after {
     background:
         radial-gradient(ellipse 70% 55% at 5% 10%,  rgba(88, 166, 255, 0.26) 0%, transparent 55%),
         radial-gradient(ellipse 55% 50% at 95% 85%, rgba(163, 113, 247, 0.24) 0%, transparent 50%),
@@ -132,11 +132,11 @@ body.dark-mode::after {
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.85;
+    opacity: 1;
 }
 
-body.dark-mode #bg-canvas {
-    opacity: 0.7;
+html.dark-mode #bg-canvas {
+    opacity: 1;
 }
 
 /* ============================================
@@ -244,11 +244,11 @@ nav {
     display: block;
 }
 
-body.dark-mode .theme-toggle .sun-icon {
+html.dark-mode .theme-toggle .sun-icon {
     display: block;
 }
 
-body.dark-mode .theme-toggle .moon-icon {
+html.dark-mode .theme-toggle .moon-icon {
     display: none;
 }
 
@@ -307,8 +307,8 @@ body.dark-mode .theme-toggle .moon-icon {
     min-width: 120px;
 }
 
-body.dark-mode .year-filter,
-body.dark-mode .month-filter {
+html.dark-mode .year-filter,
+html.dark-mode .month-filter {
     background: var(--bg-secondary);
 }
 
@@ -510,13 +510,13 @@ body.dark-mode .month-filter {
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
 }
 
-body.dark-mode .tag-badge {
+html.dark-mode .tag-badge {
     background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(163, 113, 247, 0.15));
     border-color: rgba(88, 166, 255, 0.4);
     color: var(--accent-blue);
 }
 
-body.dark-mode .tag-badge:hover {
+html.dark-mode .tag-badge:hover {
     background: linear-gradient(135deg, rgba(88, 166, 255, 0.25), rgba(163, 113, 247, 0.25));
     border-color: var(--accent-blue);
     box-shadow: 0 4px 8px rgba(88, 166, 255, 0.3);
@@ -562,18 +562,28 @@ body.dark-mode .tag-badge:hover {
     min-width: 0; /* allow code blocks to scroll instead of stretching the flex item */
 }
 
+/* Sticky left column: keeps "Back to list" pinned together with the TOC */
+.post-sidebar {
+    flex: 0 0 230px;
+    width: 230px;
+    position: sticky;
+    top: var(--spacing-lg);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+/* When there's no TOC, shrink the column to the button so it doesn't waste space */
+.post-sidebar:not(:has(.has-toc)) {
+    flex: 0 0 auto;
+    width: auto;
+}
+
 .toc-sidebar {
     display: none;
 }
 
 .toc-sidebar.has-toc {
     display: block;
-    flex: 0 0 220px;
-    width: 220px;
-    position: sticky;
-    top: var(--spacing-lg);
-    max-height: calc(100vh - 4rem);
-    overflow-y: auto;
     padding-right: var(--spacing-md);
     border-right: 1px solid var(--border-color);
     text-align: left;
@@ -630,6 +640,12 @@ body.dark-mode .tag-badge:hover {
    ============================================ */
 #articleContent {
     max-width: 1000px;
+}
+
+/* The first heading/paragraph sits flush with the sidebar top
+   (kills the gap created by h2's margin-top when a post opens with ## ) */
+#articleContent > :first-child {
+    margin-top: 0;
 }
 
 #articleContent h1 {
@@ -996,6 +1012,13 @@ body.dark-mode .tag-badge:hover {
     /* Stack layout and hide TOC sidebar on small screens */
     .post-layout {
         display: block;
+    }
+
+    .post-sidebar {
+        position: static;
+        width: auto;
+        max-height: none;
+        overflow: visible;
     }
 
     .toc-sidebar.has-toc {
