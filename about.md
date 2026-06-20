@@ -1,5 +1,5 @@
 # About Me
-Hi, I'm Luan Tran, a reverse engineer and security researcher.
+Hi, I'm Luan Tran, a Security Researcher | Malware Analysis & Incident Response.
 
 ---
 ## Vuln dectected
