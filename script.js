@@ -310,7 +310,7 @@ const PostView = {
 
     updateTitle(filePath) {
         const post = DataManager.findPost(filePath);
-        document.title = post 
+        document.title = post
             ? `${post.title} - LuanTran's Blog`
             : "LuanTran's Blog";
     },
@@ -671,6 +671,40 @@ const TOC = {
 };
 
 // ============================================
+// LOGO TYPEWRITER
+// ============================================
+const LogoTyper = {
+    text: 'Luan Tran',
+    baseDelay: 90,
+
+    init() {
+        const textEl   = document.querySelector('.logo-text');
+        const cursorEl = document.querySelector('.logo-cursor');
+        if (!textEl || !cursorEl) return;
+
+        if (sessionStorage.getItem('logoTyped')) {
+            textEl.textContent = this.text;
+            return;
+        }
+
+        cursorEl.classList.add('typing');
+        let i = 0;
+        const tick = () => {
+            textEl.textContent = this.text.slice(0, ++i);
+            if (i < this.text.length) {
+                // slight random jitter for a natural human feel
+                const jitter = this.baseDelay + (Math.random() - 0.5) * 55;
+                setTimeout(tick, jitter);
+            } else {
+                cursorEl.classList.remove('typing');
+                sessionStorage.setItem('logoTyped', '1');
+            }
+        };
+        setTimeout(tick, 300); // small initial pause before typing starts
+    }
+};
+
+// ============================================
 // APP INITIALIZATION
 // ============================================
 const App = {
@@ -679,6 +713,7 @@ const App = {
         DataManager.loadPosts();
         Router.init();
         EventHandlers.init();
+        LogoTyper.init();
     }
 };
 
