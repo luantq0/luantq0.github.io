@@ -1,5 +1,5 @@
 # About Me
-Hi, I'm Luan Tran, a Security Researcher | Malware Analysis & Incident Response.
+Hi, I'm Luan Tran (luantq0), a Security Researcher | Malware Analysis & Incident Response.
 
 ---
 ## Vuln dectected

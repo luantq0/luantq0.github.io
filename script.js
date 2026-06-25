@@ -5,14 +5,17 @@ const CONFIG = {
     postsFile: 'posts/index.txt',
     categories: ['ctf', 'blogs', 'research'],
     defaultLanguage: 'c',
-    dateFormat: { year: 'numeric', month: 'short', day: 'numeric' }
+    dateFormat: { year: 'numeric', month: 'short', day: 'numeric' },
+    postsPerPage: 5
 };
 
 const STATE = {
     posts: [],
+    filteredPosts: [],
     currentCategory: 'all',
     currentYear: 'all',
-    currentMonth: 'all'
+    currentMonth: 'all',
+    currentPage: 1
 };
 
 // ============================================
@@ -23,7 +26,8 @@ const DOM = (() => {
     const ids = [
         'postsList', 'postContent', 'articleContent',
         'backBtn', 'searchInput', 'themeToggle', 'homeLink',
-        'yearFilter', 'monthFilter', 'clearFilters', 'menuBtn', 'tocSidebar'
+        'yearFilter', 'monthFilter', 'clearFilters', 'menuBtn', 'tocSidebar',
+        'pagination'
     ];
 
     ids.forEach(id => cache[id] = document.getElementById(id));
@@ -192,14 +196,25 @@ const HomeView = {
     },
 
     displayPosts(posts) {
-        if (posts.length === 0) {
+        STATE.filteredPosts = posts;
+        STATE.currentPage = 1;
+        this.renderPage();
+    },
+
+    renderPage() {
+        if (STATE.filteredPosts.length === 0) {
             DOM.postsList.innerHTML = '<div class="no-posts">No articles found</div>';
+            DOM.pagination.innerHTML = '';
             return;
         }
 
-        const html = posts.map(post => this.createPostCard(post)).join('');
+        const start = (STATE.currentPage - 1) * CONFIG.postsPerPage;
+        const pagePosts = STATE.filteredPosts.slice(start, start + CONFIG.postsPerPage);
+
+        const html = pagePosts.map(post => this.createPostCard(post)).join('');
         DOM.postsList.innerHTML = html;
         this.attachPostHandlers();
+        Pagination.render(STATE.filteredPosts.length, STATE.currentPage);
     },
 
     createPostCard(post) {
@@ -228,6 +243,59 @@ const HomeView = {
         DOM.postsList.querySelectorAll('.post-card').forEach(card => {
             card.addEventListener('click', () => {
                 Router.updateURL(card.dataset.file);
+            });
+        });
+    }
+};
+
+const Pagination = {
+    render(totalPosts, currentPage) {
+        const totalPages = Math.ceil(totalPosts / CONFIG.postsPerPage);
+        if (totalPages <= 1) {
+            DOM.pagination.innerHTML = '';
+            return;
+        }
+        DOM.pagination.innerHTML = this.buildHTML(totalPages, currentPage);
+        this.attachHandlers();
+    },
+
+    buildHTML(totalPages, currentPage) {
+        const pages = this.getPageNumbers(totalPages, currentPage);
+        let html = '';
+
+        html += `<button class="page-btn${currentPage === 1 ? ' disabled' : ''}" data-page="${currentPage - 1}"${currentPage === 1 ? ' disabled' : ''}>Previous</button>`;
+
+        let prev = null;
+        for (const page of pages) {
+            if (prev !== null && page - prev > 1) {
+                html += `<span class="page-ellipsis">...</span>`;
+            }
+            html += `<button class="page-btn${page === currentPage ? ' active' : ''}" data-page="${page}">${page}</button>`;
+            prev = page;
+        }
+
+        html += `<button class="page-btn${currentPage === totalPages ? ' disabled' : ''}" data-page="${currentPage + 1}"${currentPage === totalPages ? ' disabled' : ''}>Next</button>`;
+
+        return html;
+    },
+
+    getPageNumbers(totalPages, currentPage) {
+        const pages = new Set([1, totalPages]);
+        if (currentPage > 1) pages.add(currentPage - 1);
+        pages.add(currentPage);
+        if (currentPage < totalPages) pages.add(currentPage + 1);
+        return [...pages].sort((a, b) => a - b);
+    },
+
+    attachHandlers() {
+        DOM.pagination.querySelectorAll('.page-btn:not(.disabled)').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = parseInt(btn.dataset.page);
+                if (page !== STATE.currentPage) {
+                    STATE.currentPage = page;
+                    HomeView.renderPage();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             });
         });
     }
@@ -674,7 +742,7 @@ const TOC = {
 // LOGO TYPEWRITER
 // ============================================
 const LogoTyper = {
-    text: 'Luan Tran',
+    text: 'Luan Tran ~ luantq0',
     baseDelay: 90,
 
     init() {
@@ -692,7 +760,6 @@ const LogoTyper = {
         const tick = () => {
             textEl.textContent = this.text.slice(0, ++i);
             if (i < this.text.length) {
-                // slight random jitter for a natural human feel
                 const jitter = this.baseDelay + (Math.random() - 0.5) * 55;
                 setTimeout(tick, jitter);
             } else {
@@ -700,7 +767,7 @@ const LogoTyper = {
                 sessionStorage.setItem('logoTyped', '1');
             }
         };
-        setTimeout(tick, 300); // small initial pause before typing starts
+        setTimeout(tick, 300);
     }
 };
 
