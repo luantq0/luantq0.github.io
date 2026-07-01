@@ -742,7 +742,7 @@ const TOC = {
 // LOGO TYPEWRITER
 // ============================================
 const LogoTyper = {
-    text: 'Luan Tran ~ luantq0',
+    text: 'Luan Tran',
     baseDelay: 90,
 
     init() {
