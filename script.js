@@ -3,7 +3,7 @@
 // ============================================
 const CONFIG = {
     postsFile: 'posts/index.txt',
-    categories: ['ctf', 'blogs', 'research'],
+    categories: ['ctf', 'blog', 'research'],
     defaultLanguage: 'c',
     dateFormat: { year: 'numeric', month: 'short', day: 'numeric' },
     postsPerPage: 5

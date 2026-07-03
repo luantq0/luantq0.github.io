@@ -5,8 +5,8 @@
 ## Analysis
 - Provide file elf 64-bit
 
-![alt text](/images/pascalCTF2026/ahc_file.png)
-![alt text](/images/pascalCTF2026/ahc_checksec.png)
+![alt text](/images/CTF/pascalCTF2026/ahc_file.png)
+![alt text](/images/CTF/pascalCTF2026/ahc_checksec.png)
 
 - In `main` func:
 ```c
@@ -99,7 +99,7 @@ reset and initialize the value; at this point, the **bins** contains 72-sized ch
 - `read_name` allows a maximum of `len + 39` characters, `read_message` allows a maximum of 39 characters, plus a '\0' added after scanf, the maximum would be `len + 80` characters. Since the chunk size is 72, only 8 characters can be overwritten if len = 0, and the *target* value cannot be reached if the overwrite is done at the last index.
 - The approach would be to use index 3 to overwrite the chunk size of index 4 (which is currently in tcachebins), reuse index 4, and free it again. This time, the chunk size of index 4 in the bins has been changed, and it's entirely possible to reuse index 4 with a larger size and write to *target* var.
 
-![alt text](/images/pascalCTF2026/ahc_heap.png)
+![alt text](/images/CTF/pascalCTF2026/ahc_heap.png)
 
 ---
 ## Exploit code

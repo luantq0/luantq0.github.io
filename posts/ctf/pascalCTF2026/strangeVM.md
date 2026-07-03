@@ -5,8 +5,8 @@
 ## Analysis
 - The challenge provide 2 file, file elf 64 bit `vm` and file data `code.pascal`
 
-![alt text](/images/pascalCTF2026/strangeVM_vm.png)
-![alt text](/images/pascalCTF2026/strangeVM_codepascal.png)
+![alt text](/images/CTF/pascalCTF2026/strangeVM_vm.png)
+![alt text](/images/CTF/pascalCTF2026/strangeVM_codepascal.png)
 
 - In `main` func, call `initVM` and `executeVM` calc *mem* var, *mem* will be compared with the available *flag* value to see if they are equal.
 ```c
