@@ -5,10 +5,10 @@
 
 ## Analysis
 - This challenge provide ELF 64-bit file.
-![alt text](/images/CTF/Scarlet_CTF_2026/ruid_login_file.png)
+![alt text](/images/ctf/Scarlet_CTF_2026/ruid_login_file.png)
 
 - Use `checksec` to verify that the binary has an executable stack.
-![alt text](/images/CTF/Scarlet_CTF_2026/ruid_login_checksec.png)
+![alt text](/images/ctf/Scarlet_CTF_2026/ruid_login_checksec.png)
 
 - I use IDA to disassemble binary.
 - `main` function:
@@ -146,8 +146,8 @@ printf("Welcome, %s!\n", (const char *)&users[6 * i]); // In main func
 
 - Now I need to leak a stack address in order to point to the `buf` variable on the stack, where the shellcode is stored.
 - I found that before calling `call rax`, the `rdi` register is pointing to an address on the stack that `rax` can fix by exploiting the buffer overflow vulnerability above. Instead of calling the `prof` func, I will call the `puts` func, thereby leaking the stack address.
-![alt text](/images/CTF/Scarlet_CTF_2026/ruid_login_callrax.png)
-![alt text](/images/CTF/Scarlet_CTF_2026/ruid_login_plt.png)
+![alt text](/images/ctf/Scarlet_CTF_2026/ruid_login_callrax.png)
+![alt text](/images/ctf/Scarlet_CTF_2026/ruid_login_plt.png)
 
 ---
 

@@ -5,11 +5,11 @@
 
 ## Analysis
 - Challenge provide ELF 64-bit file
-![alt text](/images/CTF/pwned/bof8_file.png)
+![alt text](/images/ctf/pwned/bof8_file.png)
 
 - I use `checksec` see that the binary has **No canary** and **No PIE**
 
-![alt text](/images/CTF/pwned/bof8_checksec.png)
+![alt text](/images/ctf/pwned/bof8_checksec.png)
 
 - `main` function 
 ```c
@@ -77,10 +77,10 @@ int sell()
 }
 ```
 - The value of the *rbp* register in the stack of the `buf` function is 0x7fffffffdd70
-![alt text](/images/CTF/pwned/bof8_stack_buy.png)
+![alt text](/images/ctf/pwned/bof8_stack_buy.png)
 
 - The value of the *rsp* register when calling the `ret` of the `main` function is 0x7fffffffdd78 
-![alt text](/images/CTF/pwned/bof8_stack_main.png)
+![alt text](/images/ctf/pwned/bof8_stack_main.png)
 - The difference of over 8 bytes compared to the *rbp* registry above could be due to the `leave` instruction.
 ```nasm
 .text:0000000000401364 leave
