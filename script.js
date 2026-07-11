@@ -102,8 +102,10 @@ const DataManager = {
         try {
             const response = await fetch(CONFIG.postsFile);
             if (!response.ok) throw new Error('Failed to load posts');
-            
-            STATE.posts = await response.json();
+
+            const text = await response.text();
+            const cleaned = text.replace(/,\s*([}\]])/g, '$1');
+            STATE.posts = JSON.parse(cleaned);
             this.sortByDate();
             TimeFilter.populateYears(); // Populate years after posts are loaded
             Router.handleRoute();
