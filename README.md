@@ -12,6 +12,9 @@
 ```
 2. Add Markdown file to `/posts` folder
 
+- **Images** → put them in the [`/images`](/images) folder, then reference them in the Markdown.
+- **Videos** → put them in the [`/videos`](/videos) folder, then reference them in the Markdown.
+
 ---
 
 ### On-page navigation (Table of Contents)
