@@ -29,7 +29,7 @@ Each post automatically builds a clickable **"On this page"** sidebar from your 
 ## Overview
 ## Analysis
 ### Static analysis
-## Exploit code
+## Exploit
 ```
 
 ---
