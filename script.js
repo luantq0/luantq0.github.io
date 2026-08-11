@@ -33,8 +33,6 @@ const DOM = (() => {
     ids.forEach(id => cache[id] = document.getElementById(id));
     cache.navLinks = document.querySelectorAll('.nav-links a');
     cache.navLinksMenu = document.querySelector('.nav-links');
-    cache.header = document.querySelector('header');
-    
     return cache;
 })();
 
@@ -334,9 +332,11 @@ const PostView = {
 
     addCopyButtons() {
         DOM.articleContent.querySelectorAll('pre').forEach(pre => {
-            if (pre.querySelector('.copy-btn')) return;
-
-            pre.style.position = 'relative';
+            if (pre.parentElement && pre.parentElement.classList.contains('code-block')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block';
+            pre.parentNode.insertBefore(wrapper, pre);
+            wrapper.appendChild(pre);
 
             const btn = document.createElement('button');
             btn.className = 'copy-btn';
@@ -374,7 +374,7 @@ const PostView = {
                 });
             });
 
-            pre.appendChild(btn);
+            wrapper.appendChild(btn);
         });
     },
 
@@ -494,9 +494,7 @@ const TimeFilter = {
         }
 
         const years = DataManager.getAvailableYears();
-        console.log('Available years:', years);
-        
-        const options = years.map(year => 
+        const options = years.map(year =>
             `<option value="${year}">${year}</option>`
         ).join('');
         
@@ -515,8 +513,6 @@ const TimeFilter = {
         }
 
         const months = DataManager.getAvailableMonths(year);
-        console.log('Available months for', year, ':', months);
-        
         const options = months.map(month => {
             const monthStr = month.toString().padStart(2, '0');
             return `<option value="${monthStr}">${this.monthNames[month - 1]}</option>`;
