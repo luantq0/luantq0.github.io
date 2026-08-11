@@ -461,6 +461,7 @@ const UI = {
     showPostsList() {
         DOM.postContent.style.display = 'none';
         DOM.postsList.style.display = 'flex';
+        document.body.classList.remove('reading-mode');
         document.title = "LuanTran's Blog";
         TOC.clear();
     },
@@ -468,6 +469,7 @@ const UI = {
     showArticle() {
         DOM.postsList.style.display = 'none';
         DOM.postContent.style.display = 'block';
+        document.body.classList.add('reading-mode');
         window.scrollTo(0, 0);
     },
 
