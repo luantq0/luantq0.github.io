@@ -423,6 +423,11 @@ body.reading-mode .post-layout {
     margin: 0 auto;
 }
 
+/* Hide the list pagination while reading an article */
+body.reading-mode #pagination {
+    display: none;
+}
+
 /* ============================================
    POSTS LIST
    ============================================ */
