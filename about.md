@@ -2,7 +2,7 @@
 Hi, I'm Luan Tran (luantq0), a Security Researcher | Malware Analysis & Incident Response.
 
 ---
-## Vuln dectected
+## Discovered Vulnerabilities
 
 ### Security Advisory Credits on GitHub
 - [security advisory credit](https://github.com/advisories?query=credit%3Aluantq0)
