@@ -688,8 +688,7 @@ const TOC = {
             return `<a class="toc-link toc-d${depth}" href="#${id}" data-target="${id}">${h.textContent}</a>`;
         }).join('');
 
-        DOM.tocSidebar.innerHTML =
-            `<div class="toc-title">On this page</div><nav class="toc-nav">${links}</nav>`;
+        DOM.tocSidebar.innerHTML = links;
         DOM.tocSidebar.classList.add('has-toc');
 
         this.attachHandlers();

@@ -31,6 +31,9 @@
     --code-function: #6f42c1;
     --code-variable: #e36209;
     
+    /* Layout — shared cap so the header, search bar and content column stay flush */
+    --content-max: 1300px;
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -148,7 +151,7 @@ header {
 }
 
 nav {
-    max-width: 1200px;
+    max-width: var(--content-max);
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
     display: flex;
@@ -290,7 +293,7 @@ html.dark-mode .theme-toggle .moon-icon {
    SEARCH
    ============================================ */
 .search-container {
-    max-width: 1200px;
+    max-width: var(--content-max);
     margin: 0.75rem auto 0;
     padding: 0 var(--spacing-lg);
 }
@@ -386,7 +389,7 @@ html.dark-mode .month-filter {
    CONTAINER & LAYOUT
    ============================================ */
 .container {
-    max-width: 1200px;
+    max-width: var(--content-max);
     margin: var(--spacing-lg) auto;
     padding: var(--spacing-lg);
     background: var(--bg-secondary);
@@ -419,7 +422,7 @@ body.reading-mode header {
 }
 
 body.reading-mode .post-layout {
-    max-width: 1200px;
+    max-width: var(--content-max);
     margin: 0 auto;
 }
 
@@ -652,31 +655,15 @@ html.dark-mode .tag-badge:hover {
     display: block;
     padding-right: var(--spacing-md);
     border-right: 1px solid var(--border-color);
-    text-align: left;
-}
-
-.toc-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    margin-bottom: var(--spacing-sm);
-}
-
-.toc-nav {
-    display: block;
 }
 
 .toc-link {
     display: block;
-    width: 100%;
-    text-align: left;
     color: var(--text-tertiary);
     text-decoration: none;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    padding: 0.3rem 0 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    padding: 0.35rem 0;
     border-left: 2px solid transparent;
     transition: color var(--transition-fast), border-color var(--transition-fast);
     /* Wrap long headings onto multiple lines instead of truncating with an ellipsis */
@@ -684,11 +671,12 @@ html.dark-mode .tag-badge:hover {
     overflow-wrap: anywhere;
 }
 
-/* Indent by relative depth (0 = shallowest heading in the document) */
-.toc-d0 { padding-left: 0.6rem; }
-.toc-d1 { padding-left: 1.4rem; }
-.toc-d2 { padding-left: 2.2rem; font-size: 0.8rem; }
-.toc-d3 { padding-left: 3.0rem; font-size: 0.8rem; }
+/* Indent by relative depth (0 = shallowest heading in the document).
+   The 0.55rem base keeps the text off the active-link border bar. */
+.toc-d0 { padding-left: 0.55rem; }
+.toc-d1 { padding-left: 1.35rem; }
+.toc-d2 { padding-left: 2.15rem; font-size: 0.85rem; }
+.toc-d3 { padding-left: 2.95rem; font-size: 0.85rem; }
 
 .toc-link:hover {
     color: var(--text-primary);
@@ -704,8 +692,10 @@ html.dark-mode .tag-badge:hover {
 /* ============================================
    ARTICLE CONTENT
    ============================================ */
+/* Upper bound only; the real width comes from .post-layout (var(--content-max)
+   minus the sidebar), so this must stay above it to avoid a dead gap on the right */
 #articleContent {
-    max-width: 1000px;
+    max-width: 1100px;
 }
 
 /* The first heading/paragraph sits flush with the sidebar top
@@ -790,6 +780,14 @@ html.dark-mode #articleContent ol {
     text-decoration: underline;
 }
 
+/* The global `* { margin: 0 }` reset strips hr's default spacing, leaving the
+   divider glued to the section above it — restore it symmetrically */
+#articleContent hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 2.5rem 0;
+}
+
 #articleContent img {
     max-width: 100%;
     height: auto;
@@ -832,7 +830,9 @@ html.dark-mode #articleContent ol {
     color: inherit;
     padding: 0;
     border: none;
-    font-size: 0.875rem;
+    /* Matches the rendered size of inline `code` (0.875em of the 17px body) so
+       code reads the same whether it sits in a sentence or in a block */
+    font-size: 0.9rem;
     line-height: 1.6;
     display: block;
 }
